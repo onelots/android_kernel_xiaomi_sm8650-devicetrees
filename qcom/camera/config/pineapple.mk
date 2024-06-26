@@ -1,3 +1,6 @@
+ifeq ($(CONFIG_TARGET_PRODUCT_AURORA),y)
+dtbo-y += aurora-sm8650-camera-sensor.dtbo
+else
 dtbo-$(CONFIG_ARCH_PINEAPPLE)	:= pineapple-camera.dtbo
 dtbo-$(CONFIG_ARCH_PINEAPPLE)	+= pineapple-camera-v2.dtbo \
 									pineapple-camera-sensor-cdp.dtbo \
@@ -6,6 +9,7 @@ dtbo-$(CONFIG_ARCH_PINEAPPLE)	+= pineapple-camera-v2.dtbo \
 									pineapple-camera-sensor-qrd.dtbo \
 									pineapple-camera-sensor-aim500.dtbo \
 									aurora-sm8650-camera-sensor.dtbo
+endif
 dtbo-$(CONFIG_ARCH_CLIFFS)	+= cliffs-camera.dtbo
 dtbo-$(CONFIG_ARCH_CLIFFS)	+= cliffs-camera-sensor-cdp.dtbo \
 								cliffs-camera-sensor-mtp.dtbo \
