@@ -28,7 +28,8 @@ PINEAPPLE_BOARDS += \
 		 pineapplep-hdk-overlay.dtbo \
 		 pineapple-dpm-overlay.dtbo \
 		 pineapplep-aim500-overlay.dtbo \
-		 pineapplep-aim500-v2-overlay.dtbo
+		 pineapplep-aim500-v2-overlay.dtbo \
+		 aurora-sm8650-overlay.dtbo
 
 
 pineapple-dtb-$(CONFIG_ARCH_PINEAPPLE) += \
