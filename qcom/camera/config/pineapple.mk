@@ -1,4 +1,6 @@
 ifeq ($(CONFIG_TARGET_PRODUCT_AURORA),y)
+dtbo-$(CONFIG_ARCH_PINEAPPLE)	:= pineapple-camera.dtbo
+dtbo-$(CONFIG_ARCH_PINEAPPLE)	+= pineapple-camera-v2.dtbo
 dtbo-y += aurora-sm8650-camera-sensor.dtbo
 else
 dtbo-$(CONFIG_ARCH_PINEAPPLE)	:= pineapple-camera.dtbo
