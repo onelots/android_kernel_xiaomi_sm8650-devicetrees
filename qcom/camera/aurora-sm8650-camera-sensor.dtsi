@@ -825,6 +825,139 @@
 &cam_cci0 {
 	pinctrl-0 = <&aurora_cci_i2c_scl0_active &aurora_cci_i2c_sda0_active>;
 	pinctrl-2 = <&aurora_cci_i2c_scl1_active &aurora_cci_i2c_sda1_active>;
+
+	eeprom_wide: qcom,eeprom0 {
+		cell-index = <0>;
+		compatible = "qcom,eeprom";
+		cam_vana-supply = <&camera_wide_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1N>;
+		cam_v_custom1-supply = <&camera_wide_avdd2_ldo>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+			"cam_v_custom1", "cam_clk", "cam_bob2";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 856000 1800000 0 2704000>;
+		rgltr-max-voltage = <2800000 1800000 856000 1800000 0 3296000>;
+		rgltr-load-current = <150000 150000 150000 150000  0 2000000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 100 0>, <&tlmm 108 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK0", "CAM_RESET_WIDE";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK0_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	// Wide Sensor (Sony LYT-900)
+	qcom,cam-sensor0 {
+		cell-index = <0>;
+		compatible = "qcom,cam-sensor";
+		csiphy-sd-index = <0>;
+		led-flash-src = <&led_flash_rear_wide>;
+		eeprom-src = <&eeprom_wide>;
+		ois-src = <&ois_wide>;
+		actuator-src = <&actuator_wide>;
+		aperture-src = <&aperture_wide>;
+		sensor-position-roll = <90>;
+		sensor-position-pitch = <0>;
+		sensor-position-yaw = <180>;
+		cam_vana-supply = <&camera_wide_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1N>;
+		cam_v_custom1-supply = <&camera_wide_avdd2_ldo>;
+		cam_v_custom2-supply = <&camera_ois_wide_5v_ldo>;
+		cam_v_custom3-supply = <&L7N>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vaf-supply = <&L6N>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+			"cam_v_custom1", "cam_v_custom2", "cam_clk", "cam_bob2", "cam_v_custom3", "cam_vaf";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 856000 1800000 5000000 0 2704000 3304000 3296000>;
+		rgltr-max-voltage = <2800000 1800000 856000 1800000 5000000 0 3296000 3304000 3296000>;
+		rgltr-load-current = <150000 150000 150000 150000 150000 0 2000000 150000 150000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 100 0>, <&tlmm 108 0>, <&tlmm 14 0>;
+		gpio-reset = <1>;
+		gpio-custom1 = <2>;
+		gpio-req-tbl-num = <0 1 2>;
+		gpio-req-tbl-flags = <1 0 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK0", "CAM_RESET_WIDE","CAM_CUSTOM1";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK0_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	actuator_wide: qcom,actuator0 {
+		cell-index = <0>;
+		compatible = "qcom,actuator";
+		cci-master = <CCI_MASTER_1>;
+		cam_vaf-supply = <&L6N>;
+		cam_vio-supply = <&L5N>;
+		regulator-names = "cam_vaf", "cam_vio";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <3296000 1800000>;
+		rgltr-max-voltage = <3296000 1800000>;
+		rgltr-load-current = <150000 150000>;
+	};
+
+	aperture_wide: qcom,aperture0 {
+		cell-index = <0>;
+		compatible = "qcom,aperture";
+		cci-master = <CCI_MASTER_1>;
+		cam_vaf-supply = <&L6N>;
+		cam_vio-supply = <&L5N>;
+		regulator-names = "cam_vaf", "cam_vio";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <3296000 1800000>;
+		rgltr-max-voltage = <3296000 1800000>;
+		rgltr-load-current = <150000 150000>;
+	};
+
+	ois_wide: qcom,ois0 {
+		cell-index = <0>;
+		compatible = "qcom,ois";
+		cam_vana-supply = <&camera_wide_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1N>;
+		cam_v_custom1-supply = <&camera_wide_avdd2_ldo>;
+		cam_v_custom2-supply = <&camera_ois_wide_5v_ldo>;
+		cam_v_custom3-supply = <&L7N>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vaf-supply = <&L6N>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+			"cam_v_custom1", "cam_v_custom2", "cam_clk", "cam_bob2", "cam_v_custom3", "cam_vaf";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 856000 1800000 5000000 0 2704000 3304000 3296000>;
+		rgltr-max-voltage = <2800000 1800000 856000 1800000 5000000 0 3296000 3304000 3296000>;
+		rgltr-load-current = <150000 150000 150000 150000 150000 0 2000000 150000 150000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 100 0>, <&tlmm 108 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK0", "CAM_RESET_WIDE";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK0_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
 };
 
 &cam_cci1 {
