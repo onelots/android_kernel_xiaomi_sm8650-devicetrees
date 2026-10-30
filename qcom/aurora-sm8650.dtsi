@@ -41,6 +41,12 @@
 	qcom,init-voltage = <3300000>;
 };
 
+&L9B {
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	qcom,init-voltage = <3300000>;
+};
+
 &L16B {
 	regulator-min-microvolt = <3008000>;
 	regulator-max-microvolt = <3008000>;
@@ -250,6 +256,26 @@
 };
 
 &qupv3_se5_i2c {
+	status = "disabled";
+};
+
+/* STMicroelectronics VL53L5 Laser ToF sensor */
+&qupv3_se7_spi {
+	status = "ok";
+	stmvl53l5@0 {
+		compatible = "st,stmvl53l5";
+		reg = <0>;
+		_1P8_power-supply = <&L10B>;
+		_3P0_power-supply = <&L9B>;
+		spi-max-frequency = <8000000>;
+		stm,interrupt = <&tlmm 71 1>;
+		stm,l8_firmware_name = "stmvl53l8.bin";
+		stm,l5_firmware_name = "stmvl53l5.bin";
+		status = "ok";
+	};
+};
+
+&qupv3_se7_i2c {
 	status = "disabled";
 };
 
