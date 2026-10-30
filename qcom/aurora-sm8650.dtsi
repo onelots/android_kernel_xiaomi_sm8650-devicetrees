@@ -1,0 +1,517 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2024, The LineageOS Project
+ */
+
+#include "pineapple-mtp.dtsi"
+#include "aurora-pinctrl.dtsi"
+#include <dt-bindings/regulator/qcom,rpmh-regulator-levels.h>
+#include <dt-bindings/clock/qcom,rpmh.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/input/linux-event-codes.h>
+#include <dt-bindings/phy/qcom,usb3-4nm-qmp-combo.h>
+
+#define CONFIG_MIISP_CHIP_DTB
+
+&apps_rsc_drv2 {
+	rpmh-regulator-ldod3 {
+		compatible = "qcom,rpmh-vrm-regulator";
+		qcom,resource-name = "ldod3";
+		qcom,regulator-type = "pmic5-ldo";
+		qcom,supported-modes =
+			<RPMH_REGULATOR_MODE_LPM
+			 RPMH_REGULATOR_MODE_HPM>;
+		qcom,mode-threshold-currents = <0 30000>;
+
+		L3D: pm_v6d_l3: regulator-pm-v6d-l3 {
+			regulator-name = "pm_v6d_l3";
+			qcom,set = <RPMH_REGULATOR_SET_ALL>;
+			regulator-min-microvolt = <1100000>;
+			regulator-max-microvolt = <1100000>;
+			qcom,init-voltage = <1100000>;
+			qcom,init-mode = <RPMH_REGULATOR_MODE_HPM>;
+		};
+	};
+};
+
+&L8B {
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	qcom,init-voltage = <3300000>;
+};
+
+&L16B {
+	regulator-min-microvolt = <3008000>;
+	regulator-max-microvolt = <3008000>;
+	qcom,init-voltage = <3008000>;
+};
+
+&L2G {
+	regulator-min-microvolt = <1200000>;
+	regulator-max-microvolt = <1200000>;
+	qcom,init-voltage = <1200000>;
+};
+
+&reserved_memory {
+	oem_vm_mem: oem_vm_region@f7c00000 {
+		no-map;
+		reg = <0x00 0xf7c00000 0x00 0x3800000>;
+	};
+
+	oem_vm_shm: shm@fb400000 {
+		no-map;
+		reg = <0x00 0xfb400000 0x00 0x200000>;
+	};
+
+
+	xm_ispv4_ipcbuf: xm_region_buf {
+		compatible = "shared-dma-pool";
+		no-map;
+		reg = <0x0 0xbf800000 0x0 0x800000>;
+	};
+};
+
+&soc {
+	dump_display_mem: dump_display_region@816e0000 {
+		compatible = "xiaomi,dump_display";
+		reg = <0x816e0000 0x800>;
+	};
+	xiaomi_touch: xiaomi-touch {
+		compatible = "xiaomi-touch";
+		touch,name = "xiaomi-touch";
+		status = "ok";
+	};
+
+	xiaomi_wifi_gpio {
+		compatible = "xiaomi,xiaomi-wifi";
+		gpio = <&tlmm 46 0x00>;
+		debounce-time = <30>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&wifi_ctrl_irq>;
+		status = "ok";
+	};
+
+	fingerprint_goodix {
+		compatible = "goodix,fingerprint";
+		fp_vdd_vreg-supply = <&L16B>;
+		goodix,gpio-reset = <&tlmm 89 0x0>;
+		goodix,gpio-irq = <&tlmm 90 0x0>;
+		pinctrl-names = "fingerprint_goodix_default", "fingerprint_goodix_rst";
+		pinctrl-0 = <&fingerprint_goodix_int_floating>;
+		pinctrl-1 = <&fingerprint_goodix_int_pull_down>;
+		status = "ok";
+	};
+
+	thermal-message {
+		board-sensor = "VIRTUAL-SENSOR0";
+	};
+
+	/* Leica Surge P2 PCIe ISP IPC & mailbox */
+	xm_ispv4_int: xm_ispv4_int {
+		compatible = "xiaomi,xm_ispv4_int";
+		interrupt-parent = <&tlmm>;
+		interrupts = <146 0x1>;
+		status = "ok";
+	};
+
+	xm_ispv4_mbox: xm_ispv4_mbox {
+		compatible = "xiaomi,xm_ispv4_mbox";
+		status = "ok";
+		#mbox-cells = <1>;
+	};
+
+	xm_ispv4_rproc: xm_ispv4_rproc {
+		compatible = "xiaomi,xm_ispv4_rproc";
+		memory-region = <&xm_ispv4_ipcbuf>;
+		mboxes = <&xm_ispv4_mbox 15 &xm_ispv4_mbox 0 &xm_ispv4_mbox 3 &xm_ispv4_mbox 6>;
+		mbox-names = "xm-rx-isp", "xm-tx-isp", "xm-rx-ispv4", "xm-tx-ispv4";
+		status = "ok";
+	};
+
+	xm_ispv4_ctrl: xm_ispv4_ctrl {
+		compatible = "xiaomi,xm_ispv4_ctrl";
+		status = "ok";
+	};
+};
+
+/* Synaptics TCM2 Touch Controller */
+&qupv3_se4_spi {
+	status = "ok";
+	qcom,touch-active = "synaptics,tcm-spi";
+	synaptics_tcm@0 {
+		compatible = "synaptics,tcm-spi";
+		reg = <0x0>;
+		spi-max-frequency = <15000000>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <162 0x2008>;
+		synaptics,avdd-name = "avdd";
+		avdd-supply = <&L7M>;
+		synaptics,iovdd-name = "iovdd";
+		iovdd-supply = <&L12B>;
+		synaptics,irq-gpio = <&tlmm 162 0x2008>;
+		synaptics,reset-gpio = <&tlmm 161 0x00>;
+		synaptics,irq-on-state = <0>;
+		synaptics,spi-mode = <0>;
+		synaptics,byte-delay-us = <0>;
+		synaptics,block-delay-us = <0>;
+		synaptics,power-delay-ms = <50>;
+		synaptics,reset-active-ms = <10>;
+		synaptics,reset-delay-ms = <200>;
+		synaptics,ubl-max-freq = <15000000>;
+		synaptics,ubl-byte-delay-us = <20>;
+		synaptics,fod-lx=<597>;
+		synaptics,fod-ly=<2406>;
+		synaptics,fod-x-size=<246>;
+		synaptics,fod-y-size=<246>;
+		synaptics,max-x = <1440>;
+		synaptics,max-y = <3200>;
+		synaptics,rx-num = <18>;
+		synaptics,tx-num = <40>;
+		synaptics,special-rx-num = <17>;
+		synaptics,special-tx-num = <39>;
+		synaptics,frame-data-page-size = <1>;
+		synaptics,frame-data-buf-size = <10>;
+		synaptics,raw-data-page-size = <5>;
+		synaptics,raw-data-buf-size = <5>;
+		pinctrl-names = "pmx_ts_active","pmx_ts_suspend";
+		pinctrl-0 = <&syna_tcm_eint_init &syna_tcm_rst_init>;
+		pinctrl-1 = <&syna_tcm_eint_suspend &syna_tcm_rst_suspend>;
+		synaptics,super-resolution-factor = <100>;
+		mi_tp,game-mode-array =
+				<1 0 0 0 0>;
+		mi_tp,active-mode-array =
+				<1 0 0 0 0>;
+		mi_tp,tolerance-array =
+				<4 0 2 2 2>;
+		mi_tp,up-threshold-array =
+				<4 0 3 3 3>;
+		mi_tp,aim-sensitivity-array =
+				<4 0 2 2 2>;
+		mi_tp,tap-stability-array =
+				<4 0 2 2 2>;
+		mi_tp,edge-filter-array =
+				<3 0 2 2 2>;
+		mi_tp,panel-orien-array =
+				<3 0 0 0 0>;
+		mi_tp,report-rate-array =
+				<3 0 0 0 0>;
+		mi_tp,expert-mode-array =
+				<3 1 1 1 1>;
+		mi_tp,cornerfilter-area-step-array = <0 100 170 250>;
+		mi_tp,cornerzone-filter-hor1-array =
+				<0 0 0 0 170 170 0 0>,
+				<0 1 0 0 0 0 0 0>,
+				<0 2 0 2229 170 2399 0 0>,
+				<0 3 0 0 0 0 0 0>;
+		mi_tp,cornerzone-filter-hor2-array =
+				<0 0 0 0 0 0 0 0>,
+				<0 1 909 0 1079 170 0 0>,
+				<0 2 0 0 0 0 0 0>,
+				<0 3 909 2229 1079 2399 0 0>;
+		mi_tp,cornerzone-filter-ver-array =
+				<0 0 0 0 0 0 0 0>,
+				<0 1 0 0 0 0 0 0>,
+				<0 2 0 2099 150 2399 0 0>,
+				<0 3 929 2099 1079 2399 0 0>;
+		synaptics,panel-display-resolution = <1440 3200>;
+		syna,qts_en;
+		syna,touch-type = "primary";
+		qts,trusted-touch-mode = "vm_mode";
+		qts,touch-environment = "tvm";
+		qts,trusted-touch-type = "primary";
+		qts,trusted-touch-spi-irq = <598>;
+		qts,trusted-touch-io-bases = <0xa90000 0xa10000>;
+		qts,trusted-touch-io-sizes = <0x1000 0x4000>;
+		qts,trusted-touch-vm-gpio-list = <&tlmm 48 0 &tlmm 49 0 &tlmm 50 0
+                                          &tlmm 51 0 &tlmm 161 0 &tlmm 162 0x2008>;
+		synaptics,config-array-size = <1>;
+		synaptics,default-thp-config-name = "aurora_syna_thp_config.ini";
+		synaptics,default-fw-image-name = "synaptics_spi_aurora.img";
+		synaptics,default-test-limit-name = "aurora_test_limits_S3910P.csv";
+		synpatics,cfg_0 {
+			synaptics,tp-vendor = <0x00>;
+			synaptics,thp-config-name = "aurora_syna_thp_config.ini";
+			synaptics,fw-image-name = "synaptics_spi_aurora.img";
+			synaptics,test-limit-name = "aurora_test_limits_S3910P.csv";
+		};
+	};
+};
+
+/* NXP SN220 NFC */
+&qupv3_se0_i2c {
+	status = "ok";
+	qcom,clk-freq-out = <1000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	nq@28 {
+		compatible = "qcom,sn-nci";
+		reg = <0x28>;
+		qcom,sn-irq = <&tlmm 75 0x00>;
+		qcom,sn-ven = <&tlmm 34 0x00>;
+		qcom,sn-clkreq = <&tlmm 35 0x00>;
+		qcom,sn-szone = "enable";
+		qcom,sn-vdd-1p8-supply = <&L3C>;
+		qcom,sn-vdd-1p8-voltage = <1200000 1200000>;
+		qcom,sn-vdd-1p8-current = <157000>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <75 0>;
+		interrupt-names = "nfc_irq";
+		pinctrl-names = "nfc_active", "nfc_suspend";
+		pinctrl-0 = <&nfc_int_active &nfc_enable_active>;
+		pinctrl-1 = <&nfc_int_suspend &nfc_enable_suspend>;
+	};
+};
+
+/* Cirrus Logic CS35L43 SmartPA */
+&qupv3_hub_i2c4 {
+	status = "ok";
+	pinctrl-0 = <&qupv3_hub_i2c4_sda_active &qupv3_hub_i2c4_scl_active>;
+	pinctrl-names = "default";
+
+	cs35l43_0: cs35l43@40 {
+		compatible = "cirrus,cs35l43";
+		reg = <0x40>;
+		sound-name-prefix = "B";
+		cirrus,i2c-addr = <0x28>;
+		reset-gpios = <&tlmm 85 0x00>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <88 0x2008>;
+		pinctrl-0 = <&cirrus_reset_default_0 &cirrus_irq_default_0>;
+		pinctrl-names = "default";
+		cirrus,vpbr-enable = <1>;
+		cirrus,vpbr-thld = <8>;
+		cirrus,vpbr-max-att = <3>;
+		cirrus,vpbr-atk-vol = <5>;
+		cirrus,vpbr-atk-rate = <0>;
+		cirrus,vpbr-rel-rate = <0>;
+		cirrus,vpbr-wait = <0>;
+		cirrus,low-pwr-mode-standby = <1>;
+		cirrus,gpio2-src-sel = <4>;
+		cirrus,asp-sdout-hiz = <3>;
+		cirrus,bst-ipk-ma = <4000>;
+		status = "ok";
+	};
+
+	cs35l43_1: cs35l43@42 {
+		compatible = "cirrus,cs35l43";
+		reg = <0x42>;
+		sound-name-prefix = "T";
+		cirrus,i2c-addr = <0x2a>;
+		reset-gpios = <&tlmm 111 0x00>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <92 0x2008>;
+		pinctrl-0 = <&cirrus_reset_default_1 &cirrus_irq_default_1>;
+		pinctrl-names = "default";
+		cirrus,vpbr-enable = <1>;
+		cirrus,vpbr-thld = <8>;
+		cirrus,vpbr-max-att = <3>;
+		cirrus,vpbr-atk-vol = <5>;
+		cirrus,vpbr-atk-rate = <0>;
+		cirrus,vpbr-rel-rate = <0>;
+		cirrus,vpbr-wait = <0>;
+		cirrus,low-pwr-mode-standby = <1>;
+		cirrus,gpio2-src-sel = <4>;
+		cirrus,asp-sdout-hiz = <3>;
+		cirrus,bst-ipk-ma = <4000>;
+		status = "ok";
+	};
+};
+
+/* USB & WCD USB-SS */
+&usb0 {
+	qcom,wcd_usbss = <&wcd_usbss>;
+};
+
+&wcd_usbss {
+	wcd-equ-bw-settings = <0x8>;
+	pinctrl-names = "usbss_active", "usbss_sleep";
+	pinctrl-0 = <&wcd_usbss_reset_active>;
+	pinctrl-1 = <&wcd_usbss_reset_sleep>;
+	reset-gpios = <&tlmm 152 0x00>;
+};
+
+&usb_qmp_dp_phy {
+	usb3,eyegram-tuning;
+	qcom,qmp-phy-init-seq =
+		<0x1000 0xc0 0x1004 0x01 0x1010 0x02 0x1014 0x16 0x1018 0x36 0x101c 0x04
+		 0x1020 0x16 0x1024 0x41 0x1028 0x41 0x102c 0x00 0x1030 0x55 0x1034 0x75
+		 0x1038 0x01 0x103c 0x01 0x1048 0x25 0x104c 0x02 0x1050 0x5c 0x1054 0x0f
+		 0x1058 0x5c 0x105c 0x0f 0x1060 0xc0 0x1064 0x01 0x1070 0x02 0x1074 0x16
+		 0x1078 0x36 0x1080 0x08 0x1084 0x1a 0x1088 0x41 0x108c 0x00 0x1090 0x55
+		 0x1094 0x75 0x1098 0x01 0x10a8 0x25 0x10ac 0x02 0x10bc 0x0a 0x10c0 0x01
+		 0x10cc 0x62 0x10d0 0x02 0x10e8 0x0c 0x1110 0x1a 0x1124 0x14 0x1140 0x04
+		 0x1170 0x20 0x1174 0x16 0x11a4 0xb6 0x11a8 0x4b 0x11ac 0x37 0x11b4 0x0c
+		 0x1234 0x00 0x1238 0x00 0x123c 0x1f 0x1240 0x09 0x1284 0xf5 0x128c 0x3f
+		 0x1290 0x3f 0x1294 0x5f 0x12a4 0x12 0x12e4 0x21 0x1408 0x0a 0x1414 0x06
+		 0x1430 0x2f 0x1434 0x7f 0x143c 0xff 0x1440 0x0f 0x1444 0x99 0x144c 0x08
+		 0x1450 0x08 0x1454 0x00 0x1458 0x0a 0x1460 0xa0 0x14d4 0x54 0x14d8 0x0f
+		 0x14dc 0x13 0x14ec 0x0f 0x14f0 0x4a 0x14f4 0x0a 0x14f8 0x07 0x14fc 0x00
+		 0x1510 0x47 0x151c 0x04 0x1524 0x0e 0x155c 0x3f 0x1560 0xbf 0x1564 0xff
+		 0x1568 0xdf 0x156c 0xed 0x1570 0xdc 0x1574 0x5c 0x1578 0x9c 0x157c 0x1d
+		 0x1580 0x09 0x15a0 0x04 0x15a4 0x38 0x15a8 0x0c 0x15b0 0x10 0x15e4 0x14
+		 0x15f8 0x08 0x1634 0x00 0x1638 0x00 0x163c 0x1f 0x1640 0x09 0x1684 0xf5
+		 0x168c 0x3f 0x1690 0x3f 0x1694 0x5f 0x16a4 0x12 0x16e4 0x05 0x1808 0x0a
+		 0x1814 0x06 0x1830 0x2f 0x1834 0x7f 0x183c 0xff 0x1840 0x0f 0x1844 0x99
+		 0x184c 0x08 0x1850 0x08 0x1854 0x00 0x1858 0x0a 0x1860 0xa0 0x18d4 0x54
+		 0x18d8 0x0f 0x18dc 0x13 0x18ec 0x0f 0x18f0 0x4a 0x18f4 0x0a 0x18f8 0x07
+		 0x18fc 0x00 0x1910 0x47 0x191c 0x04 0x1924 0x0e 0x195c 0xbf 0x1960 0xbf
+		 0x1964 0xbf 0x1968 0xdf 0x196c 0xfd 0x1970 0xdc 0x1974 0x5c 0x1978 0x9c
+		 0x197c 0x1d 0x1980 0x09 0x19a0 0x04 0x19a4 0x38 0x19a8 0x0c 0x19b0 0x10
+		 0x19e4 0x14 0x19f8 0x08 0x1cc4 0xc4 0x1cc8 0x89 0x1ccc 0x20 0x1cd8 0x13
+		 0x1cdc 0x21 0x1d88 0x99 0x1d90 0xe7 0x1d94 0x03 0x1db0 0x0a 0x1dc0 0x88
+		 0x1dc4 0x13 0x1dd0 0x0c 0x1ddc 0x4b 0x1dec 0x10 0x1f00 0x68 0x1f18 0xf8
+		 0x1f3c 0x07 0x1f40 0x40 0x1f44 0x00 0x1d38 0x1f 0x1d6c 0x18>;
+};
+
+&battery_charger {
+	qcom,shutdown-voltage = <3150>;
+	mi,support-shutdown-delay;
+};
+
+/* Leica Surge P2 PCIe root port & devices */
+&pcie1 {
+	status = "ok";
+	qcom,target-link-speed = <0x4>;
+	qcom,no-l0s-supported;
+};
+
+&pcie1_rp {
+	#address-cells = <5>;
+	#size-cells = <0>;
+
+	xm_ispv4_pci: xm_ispv4_pci {
+		reg = <0 0 0 0 0>;
+		qcom,iommu-group = <&xm_ispv4_pci_iommu_group>;
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		xm_ispv4_pci_iommu_group: xm_ispv4_pci_iommu_group {
+			qcom,iommu-msi-size = <0x1000>;
+			qcom,iommu-dma-addr-pool = <0xDF000000 0x10000000>;
+			qcom,iommu-dma = "fastmap";
+			qcom,iommu-pagetable = "coherent";
+			qcom,iommu-faults = "stall-disable", "HUPCF",
+					    "no-CFRE", "non-fatal";
+		};
+	};
+};
+
+&qupv3_se8_spi {
+	status = "ok";
+	qcom,disable-dma;
+	xm_ispv4_spi: xm_ispv4_spi@0 {
+		compatible = "xiaomi,ispv4_spi";
+		reg = <0>;
+		spi-max-frequency = <32000000>;
+		status = "ok";
+	};
+};
+
+&qupv3_hub_i2c8 {
+	status = "ok";
+	xm_ispv4_pmic: xm_ispv4_pmic@25 {
+		compatible = "xm-ispv4-pmic";
+		reg = <0x25>;
+		status = "ok";
+		vdd-npu-supply = <&vdd_npu_v65>;
+		vdd-isp-supply = <&vdd_isp_v65>;
+		vdd-chip-supply = <&vdd_chip_1v97>;
+		vdd-core-supply = <&vdd_core_v75>;
+		vdd-mem-supply = <&vdd_mem_v75>;
+		vdd-ddr0-supply = <&vdd_ddr_v75>;
+		vdd-ddr1-supply = <&vdd_ddr_1v1>;
+		vdd-ddr2-supply = <&vdd_ddr_v6>;
+		vdd-mipi0-supply = <&vdd_mipi_v75>;
+		vdd-mipi1-supply = <&vdd_mipi_1v9>;
+		vdd-ddr3-supply = <&vdd_ddr_1v8>;
+		vdd-analog-supply = <&vdd_analog_1v8>;
+		vdd-efuse-supply = <&vdd_efuse_1v8>;
+		regulator-names = "vdd-npu", "vdd-isp", "vdd-chip", "vdd-core", "vdd-mem",
+					"vdd-ddr0", "vdd-ddr1", "vdd-ddr2", "vdd-mipi0",
+					"vdd-mipi1", "vdd-ddr3", "vdd-analog", "vdd-efuse";
+
+		regulators {
+			vdd_npu_v65: BUCK_REG1 {
+				regulator-name = "BUCK1";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <800000>;
+			};
+			vdd_isp_v65: BUCK_REG2 {
+				regulator-name = "BUCK2";
+				regulator-min-microvolt = <500000>;
+				regulator-max-microvolt = <800000>;
+			};
+			vdd_chip_1v97: BUCK_REG3 {
+				regulator-name = "BUCK3";
+				regulator-min-microvolt = <1600000>;
+				regulator-max-microvolt = <2200000>;
+				regulator-always-on;
+			};
+			vdd_core_v75: BUCK_REG4 {
+				regulator-name = "BUCK4";
+				regulator-min-microvolt = <650000>;
+				regulator-max-microvolt = <850000>;
+				regulator-always-on;
+			};
+			vdd_mem_v75: BUCK_REG5 {
+				regulator-name = "BUCK5";
+				regulator-min-microvolt = <650000>;
+				regulator-max-microvolt = <850000>;
+			};
+			vdd_ddr_v75: BUCK_REG6 {
+				regulator-name = "BUCK6";
+				regulator-min-microvolt = <650000>;
+				regulator-max-microvolt = <875000>;
+				regulator-always-on;
+			};
+			vdd_ddr_1v1: BUCK_REG7 {
+				regulator-name = "BUCK7";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1185000>;
+				regulator-always-on;
+			};
+			vdd_ddr_v6: LDO_REG1 {
+				regulator-name = "LDO1";
+				regulator-min-microvolt = <525000>;
+				regulator-max-microvolt = <700000>;
+				regulator-always-on;
+			};
+			vdd_mipi_v75: LDO_REG2 {
+				regulator-name = "LDO2";
+				regulator-min-microvolt = <650000>;
+				regulator-max-microvolt = <900000>;
+				regulator-always-on;
+			};
+			vdd_mipi_1v9: LDO_REG3 {
+				regulator-name = "LDO3";
+				regulator-min-microvolt = <1650000>;
+				regulator-max-microvolt = <2100000>;
+				vdd-supply = <&vdd_chip_1v97>;
+				regulator-always-on;
+			};
+			vdd_ddr_1v8: LDO_REG4 {
+				regulator-name = "LDO4";
+				regulator-min-microvolt = <1650000>;
+				regulator-max-microvolt = <2000000>;
+				vdd-supply = <&vdd_chip_1v97>;
+				regulator-always-on;
+			};
+			vdd_analog_1v8: LDO_REG5 {
+				regulator-name = "LDO5";
+				regulator-min-microvolt = <1650000>;
+				regulator-max-microvolt = <2000000>;
+				vdd-supply = <&vdd_chip_1v97>;
+				regulator-always-on;
+			};
+			vdd_efuse_1v8: LDO_REG6 {
+				regulator-name = "LDO6";
+				regulator-min-microvolt = <1600000>;
+				regulator-max-microvolt = <2000000>;
+				vdd-supply = <&vdd_chip_1v97>;
+				regulator-always-on;
+			};
+		};
+	};
+};

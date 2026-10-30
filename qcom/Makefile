@@ -29,7 +29,8 @@ PINEAPPLE_BOARDS += \
 		 pineapplep-hdk-overlay.dtbo \
 		 pineapple-dpm-overlay.dtbo \
 		 pineapplep-aim500-overlay.dtbo \
-		 pineapplep-aim500-v2-overlay.dtbo
+		 pineapplep-aim500-v2-overlay.dtbo \
+		 aurora-sm8650-overlay.dtbo
 
 
 pineapple-dtb-$(CONFIG_ARCH_PINEAPPLE) += \
@@ -98,6 +99,16 @@ pineapple-overlays-dtb-$(CONFIG_ARCH_VOLCANO) += $(VOLCANO_BOARDS) $(NOAPQ_VOLCA
 
 dtb-y += $(pineapple-dtb-y)
 else
+ifeq ($(CONFIG_TARGET_PRODUCT_AURORA), y)
+PINEAPPLE_BASE_DTB += pineapple.dtb pineapple-v2.dtb
+PINEAPPLE_APQ_BASE_DTB += pineapplep.dtb pineapplep-v2.dtb pineapplep-sg-v2.dtb pineappleq-v2.dtb pineapplep-qcs.dtb
+XIAOMI_PINEAPPLE_BOARDS += \
+		 aurora-sm8650-overlay.dtbo
+
+aurora-overlays-dtb-$(CONFIG_ARCH_PINEAPPLE) += $(XIAOMI_PINEAPPLE_BOARDS) $(PINEAPPLE_BASE_DTB) $(PINEAPPLE_APQ_BASE_DTB)
+
+dtb-y += $(aurora-overlays-dtb-y)
+else
 CLIFFS_BASE_DTB += cliffs.dtb cliffs7.dtb
 XIAOMI_CLIFFS_BOARDS += \
 		 peridot-sm8635-overlay.dtbo
@@ -105,6 +116,7 @@ XIAOMI_CLIFFS_BOARDS += \
 peridot-overlays-dtb-$(CONFIG_ARCH_CLIFFS) += $(XIAOMI_CLIFFS_BOARDS) $(CLIFFS_BASE_DTB)
 
 dtb-y += $(peridot-overlays-dtb-y)
+endif
 endif
 KALAMA_BASE_DTB += kalama.dtb kalama-v2.dtb
 KALAMA_APQ_BASE_DTB += kalamap.dtb kalamap-v2.dtb

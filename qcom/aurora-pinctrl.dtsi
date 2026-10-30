@@ -1,0 +1,418 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2024, Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2024, The LineageOS Project
+ */
+
+&tlmm {
+	/* Audio - Cirrus Logic CS35L43 SmartPA */
+	qupv3_hub_i2c4_sda_active: qupv3_hub_i2c4_sda_active {
+		mux {
+			pins = "gpio72";
+			function = "i2chub0_se4_l0";
+		};
+
+		config {
+			pins = "gpio72";
+			drive-strength = <2>;
+			bias-pull-up;
+			qcom,i2c_pull;
+		};
+	};
+
+	qupv3_hub_i2c4_scl_active: qupv3_hub_i2c4_scl_active {
+		mux {
+			pins = "gpio73";
+			function = "i2chub0_se4_l1";
+		};
+
+		config {
+			pins = "gpio73";
+			drive-strength = <2>;
+			bias-pull-up;
+			qcom,i2c_pull;
+		};
+	};
+
+	qupv3_hub_i2c4_sleep: qupv3_hub_i2c4_sleep {
+		mux {
+			pins = "gpio72", "gpio73";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio72", "gpio73";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+
+	cirrus_reset_default_0: cirrus_reset_default_0 {
+		mux {
+			pins = "gpio85";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio85";
+			drive-strength = <16>;
+			bias-disable;
+			output-high;
+		};
+	};
+
+	cirrus_reset_default_1: cirrus_reset_default_1 {
+		mux {
+			pins = "gpio111";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio111";
+			drive-strength = <16>;
+			bias-disable;
+			output-high;
+		};
+	};
+
+	cirrus_irq_default {
+		cirrus_irq_default_0: cirrus_irq_default_0 {
+			mux {
+				pins = "gpio88";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio88";
+				drive-strength = <2>;
+				bias-pull-up;
+				input-enable;
+			};
+		};
+
+		cirrus_irq_default_1: cirrus_irq_default_1 {
+			mux {
+				pins = "gpio92";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio92";
+				drive-strength = <2>;
+				bias-pull-up;
+				input-enable;
+			};
+		};
+	};
+
+	/* Audio - SBU UART audio switch */
+	sbu_uart_en_ctrl {
+		sbu_uart_en_active: uart_audio_en_active {
+			mux {
+				pins = "gpio53";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio53";
+				drive-strength = <2>;
+				bias-disable;
+				output-high;
+			};
+		};
+
+		sbu_uart_en_idle: uart_audio_en_idle {
+			mux {
+				pins = "gpio53";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio53";
+				drive-strength = <2>;
+				bias-pull-down;
+				output-low;
+			};
+		};
+	};
+
+	/* Audio - WCD USB-SS */
+	wcd_usbss_reset_active: wcd_usbss_reset_active {
+		mux {
+			pins = "gpio152";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio152";
+			drive-strength = <16>;
+			output-high;
+		};
+	};
+
+	wcd_usbss_reset_sleep: wcd_usbss_reset_sleep {
+		mux {
+			pins = "gpio152";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio152";
+			drive-strength = <16>;
+			bias-disable;
+			output-low;
+		};
+	};
+
+	/* Fingerprint - Goodix FOD */
+	fingerprint_goodix_int_floating: fingerprint_goodix_int_floating {
+		mux {
+			pins = "gpio90";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio90";
+			drive-strength = <2>;
+			bias-disable;
+			input-enable;
+		};
+	};
+
+	fingerprint_goodix_int_pull_down: fingerprint_goodix_int_pull_down {
+		mux {
+			pins = "gpio90";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio90";
+			drive-strength = <2>;
+			bias-pull-down;
+			input-enable;
+		};
+	};
+
+	/* NFC - NXP SN220 */
+	nfc {
+		nfc_int_active: nfc_int_active {
+			mux {
+				pins = "gpio75";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio75";
+				drive-strength = <2>;
+				bias-pull-down;
+			};
+		};
+
+		nfc_int_suspend: nfc_int_suspend {
+			mux {
+				pins = "gpio75";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio75";
+				drive-strength = <2>;
+				bias-pull-down;
+			};
+		};
+
+		nfc_enable_active: nfc_enable_active {
+			mux {
+				pins = "gpio34", "gpio35";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio34", "gpio35";
+				drive-strength = <2>;
+				bias-disable;
+			};
+		};
+
+		nfc_enable_suspend: nfc_enable_suspend {
+			mux {
+				pins = "gpio34", "gpio35";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio34", "gpio35";
+				drive-strength = <2>;
+				bias-disable;
+			};
+		};
+	};
+
+	/* Touchscreen - Synaptics TCM2 */
+	syna_tcm_eint_init: syna_tcm_eint_init {
+		mux {
+			pins = "gpio162";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio162";
+			bias-disable;
+			input-enable;
+		};
+	};
+
+	syna_tcm_rst_init: syna_tcm_rst_init {
+		mux {
+			pins = "gpio161";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio161";
+			bias-disable;
+			output-low;
+		};
+	};
+
+	syna_tcm_eint_suspend: syna_tcm_eint_suspend {
+		mux {
+			pins = "gpio162";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio162";
+			bias-pull-down;
+		};
+	};
+
+	syna_tcm_rst_suspend: syna_tcm_rst_suspend {
+		mux {
+			pins = "gpio161";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio161";
+			bias-pull-down;
+			output-low;
+		};
+	};
+
+	mi_ts_spi_miso_active: mi_ts_spi_miso_active {
+		mux {
+			pins = "gpio48";
+			function = "qup1_se4_l0";
+		};
+
+		config {
+			pins = "gpio48";
+			drive-strength = <6>;
+			bias-pull-down;
+		};
+	};
+
+	mi_ts_spi_mosi_active: mi_ts_spi_mosi_active {
+		mux {
+			pins = "gpio49";
+			function = "qup1_se4_l1";
+		};
+
+		config {
+			pins = "gpio49";
+			drive-strength = <6>;
+			bias-pull-down;
+		};
+	};
+
+	mi_ts_spi_clk_active: mi_ts_spi_clk_active {
+		mux {
+			pins = "gpio50";
+			function = "qup1_se4_l2";
+		};
+
+		config {
+			pins = "gpio50";
+			drive-strength = <6>;
+			bias-pull-down;
+		};
+	};
+
+	mi_ts_spi_cs_active: mi_ts_spi_cs_active {
+		mux {
+			pins = "gpio51";
+			function = "qup1_se4_l3";
+		};
+
+		config {
+			pins = "gpio51";
+			drive-strength = <6>;
+			bias-pull-down;
+		};
+	};
+
+	mi_ts_spi_cs_sleep: mi_ts_spi_cs_sleep {
+		mux {
+			pins = "gpio51";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio51";
+			drive-strength = <6>;
+			bias-pull-up;
+		};
+	};
+
+	mi_ts_spi_sleep: mi_ts_spi_sleep {
+		mux {
+			pins = "gpio48", "gpio49", "gpio50";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio48", "gpio49", "gpio50";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+
+	/* Wi-Fi */
+	wifi_ctrl_irq: wifi_ctrl_irq {
+		mux {
+			pins = "gpio46";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio46";
+			drive-strength = <2>;
+			bias-disable;
+			input-enable;
+		};
+	};
+};
+
+&pmk8550_gpios {
+	/* Leica Surge P2 PCIe ISP Sleep Clock */
+	ispv4_sleep_clk {
+		ispv4_sleep_clk_active: ispv4_sleep_clk_active {
+			pins = "gpio3";
+			function = "func1";
+			input-disable;
+			output-enable;
+			bias-disable;
+			power-source = <0>;
+		};
+
+		ispv4_sleep_clk_inactive: ispv4_sleep_clk_inactive {
+			pins = "gpio3";
+			function = "normal";
+			input-enable;
+			output-disable;
+			bias-pull-down;
+			power-source = <0>;
+		};
+	};
+};
