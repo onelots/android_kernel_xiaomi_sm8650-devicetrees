@@ -1167,7 +1167,124 @@
 };
 
 &cam_cci2 {
-	pinctrl-2 = <&aurora_cci_i2c_sda5_active &aurora_cci_i2c_scl5_active>;
+    pinctrl-2 = <&aurora_cci_i2c_sda5_active &aurora_cci_i2c_scl5_active>;
+
+    actuator_tele5x: qcom,actuator4 {
+		cell-index = <4>;
+		compatible = "qcom,actuator";
+		cci-master = <CCI_MASTER_1>;
+		cam_v_custom1-supply = <&L3M>;/*OIS AVDD*/
+		cam_vaf-supply = <&L4M>;
+		cam_vio-supply = <&L5N>;
+		cam_bob2-supply = <&BOB2>;
+		regulator-names = "cam_vaf", "cam_vio","cam_v_custom1","cam_bob2";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 2800000 3296000>;
+		rgltr-max-voltage = <2800000 1800000 2800000 3296000>;
+		rgltr-load-current = <103000 20000 103000 2000000>;
+	};
+
+	ois_tele5x: qcom,ois4 {
+		cell-index = <4>;
+		compatible = "qcom,ois";
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1M>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vana-supply = <&camera_tele5x_avdd_ldo>;
+		cam_v_custom1-supply = <&L3M>;/*OIS AVDD*/
+		cam_vaf-supply =<&L4M>;
+		cam_bob2-supply = <&BOB2>;
+		regulator-names = "cam_vio", "cam_vdig",
+				"cam_clk", "cam_vana", "cam_v_custom1", "cam_vaf","cam_bob2";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-max-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-load-current = <155000 50000 0 50000 103000 103000 2000000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 103 0>, <&tlmm 209 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK3", "CAM_RESET_TELE5X";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK3_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	eeprom_tele5x: qcom,eeprom4 {
+		cell-index = <4>;
+		compatible = "qcom,eeprom";
+		cam_vana-supply = <&camera_tele5x_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1M>;
+		cam_bob2-supply = <&BOB2>;
+		cam_v_custom1-supply = <&L3M>;/*OIS AVDD*/
+		cam_vaf-supply =<&L4M>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		regulator-names = "cam_vio", "cam_vdig",
+				"cam_clk", "cam_vana", "cam_v_custom1", "cam_vaf","cam_bob2";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-max-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-load-current = <155000 50000 0 50000 103000 103000 2000000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 103 0>, <&tlmm 209 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK3", "CAM_RESET_TELE5X";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK3_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	// Periscope 5x Sensor (Sony IMX858)
+	qcom,cam-sensor4 {
+		cell-index = <4>;
+		compatible = "qcom,cam-sensor";
+		csiphy-sd-index = <3>;
+		eeprom-src = <&eeprom_tele5x>;
+		led-flash-src = <&led_flash_rear_tele5x>;
+		actuator-src = <&actuator_tele5x>;
+		ois-src = <&ois_tele5x>;
+		sensor-position-roll = <90>;
+		sensor-position-pitch = <0>;
+		sensor-position-yaw = <180>;
+		cam_vana-supply = <&camera_tele5x_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L1M>;
+		cam_bob2-supply = <&BOB2>;
+		cam_v_custom1-supply = <&L3M>;/*OIS AVDD*/
+		cam_vaf-supply =<&L4M>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		regulator-names = "cam_vio", "cam_vdig",
+				"cam_clk", "cam_vana", "cam_v_custom1", "cam_vaf","cam_bob2";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-max-voltage = <1800000 1104000 0 2800000 2800000 2800000 3296000>;
+		rgltr-load-current = <155000 50000 0 50000 103000 103000 2000000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 103 0>, <&tlmm 209 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK3", "CAM_RESET_TELE5X";
+		cci-master = <CCI_MASTER_1>;
+		clocks = <&camcc CAM_CC_MCLK3_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
 };
 
 &qupv3_se9_i2c {
