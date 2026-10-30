@@ -1048,6 +1048,122 @@
 
 &cam_cci1 {
 	pinctrl-0 = <&aurora_cci_i2c_scl2_active &aurora_cci_i2c_sda2_active>;
+
+	// Tele3x Actuator
+	actuator_tele3x: qcom,actuator3 {
+		cell-index = <3>;
+		compatible = "qcom,actuator";
+		cci-master = <CCI_MASTER_0>;
+		cam_vaf-supply = <&L6M>;
+		cam_vio-supply = <&L5N>;
+		regulator-names = "cam_vaf", "cam_vio";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <3300000 1800000>;
+		rgltr-max-voltage = <3300000 1800000>;
+		rgltr-load-current = <150000 150000>;
+    };
+
+	eeprom_tele3x: qcom,eeprom3 {
+		cell-index = <3>;
+		compatible = "qcom,eeprom";
+		cam_vana-supply = <&camera_tele3x_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L2M>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vaf-supply = <&L6M>;
+		cam_v_custom1-supply = <&L5M>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+						  "cam_clk", "cam_bob2", "cam_vaf", "cam_v_custom1";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 1104000 0 2704000 3300000 3304000>;
+		rgltr-max-voltage = <2800000 1800000 1104000 0 3296000 3300000 3304000>;
+		rgltr-load-current = <150000 150000 150000 0 2000000 150000 150000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 102 0>, <&tlmm 110 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK2", "CAM_RESET_TELE3X";
+		cci-master = <CCI_MASTER_0>;
+		clocks = <&camcc CAM_CC_MCLK2_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	// Telephoto 3.2x Sensor (Sony IMX858)
+	qcom,cam-sensor3 {
+		cell-index = <3>;
+		compatible = "qcom,cam-sensor";
+		csiphy-sd-index = <5>;
+		eeprom-src = <&eeprom_tele3x>;
+		ois-src = <&ois_tele3x>;
+		actuator-src = <&actuator_tele3x>;
+		led-flash-src = <&led_flash_rear_tele3x>;
+		sensor-position-roll = <90>;
+		sensor-position-pitch = <0>;
+		sensor-position-yaw = <180>;
+		cam_vana-supply = <&camera_tele3x_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L2M>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vaf-supply = <&L6M>;
+		cam_v_custom1-supply = <&L5M>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+						  "cam_clk", "cam_bob2", "cam_vaf", "cam_v_custom1";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 1104000 0 2704000 3300000 3304000>;
+		rgltr-max-voltage = <2800000 1800000 1104000 0 3296000 3300000 3304000>;
+		rgltr-load-current = <150000 150000 150000 0 2000000 150000 150000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 102 0>, <&tlmm 110 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK2", "CAM_RESET_TELE3X";
+		cci-master = <CCI_MASTER_0>;
+		clocks = <&camcc CAM_CC_MCLK2_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
+
+	ois_tele3x:qcom,ois3{
+		cell-index = <3>;
+		compatible = "qcom,ois";
+		cam_vana-supply = <&camera_tele3x_avdd_ldo>;
+		cam_vio-supply = <&L5N>;
+		cam_vdig-supply = <&L2M>;
+		cam_bob2-supply = <&BOB2>;
+		cam_clk-supply = <&cam_cc_titan_top_gdsc>;
+		cam_vaf-supply = <&L6M>;
+		cam_v_custom1-supply = <&L5M>;
+		regulator-names = "cam_vana", "cam_vio", "cam_vdig",
+						  "cam_clk", "cam_bob2", "cam_vaf", "cam_v_custom1";
+		rgltr-cntrl-support;
+		rgltr-min-voltage = <2800000 1800000 1104000 0 2704000 3300000 3304000>;
+		rgltr-max-voltage = <2800000 1800000 1104000 0 3296000 3300000 3304000>;
+		rgltr-load-current = <150000 150000 150000 0 2000000 150000 150000>;
+		gpio-no-mux = <0>;
+		use-shared-clk;
+		gpios = <&tlmm 102 0>, <&tlmm 110 0>;
+		gpio-reset = <1>;
+		gpio-req-tbl-num = <0 1>;
+		gpio-req-tbl-flags = <1 0>;
+		gpio-req-tbl-label = "CAMIF_MCLK2", "CAM_RESET_TELE3X";
+		cci-master = <CCI_MASTER_0>;
+		clocks = <&camcc CAM_CC_MCLK2_CLK>;
+		clock-names = "cam_clk";
+		clock-cntl-level = "nominal";
+		clock-rates = <19200000>;
+		status = "ok";
+	};
 };
 
 &cam_cci2 {
